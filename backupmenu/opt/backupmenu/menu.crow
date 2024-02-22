@@ -1,0 +1,9 @@
+
+# 修改 backupmenu 兼容还原 tar.bz2 包
+sed -i -r 's/tar -xvf/tar -axvf/g' ./menu/*
+sed -i -r 's/\$date-/\${date}-/g' ./menu/*
+sed -i -r 's/\$datef/\${datef}/g' ./menu/*
+sed -i -r 's/`date +"%Y%m%d-%H%M"`/$\(date +\x27%Y%m%d-%H%M\x27\)/g' ./menu/*
+
+# 增加 ntfs 分区兼容, 可读写 ntfs 格式的存储卡, 并更新文件 files.tar/3-Backupmenu-preparing-files/4-Backupmenu-prestat
+

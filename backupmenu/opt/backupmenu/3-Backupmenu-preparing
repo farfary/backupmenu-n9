@@ -1,0 +1,116 @@
+####################################################
+#######            BackupMenu N9             #######
+#######         Created By Farfary           #######
+#######     <farhadarghavan@yahoo.com>       #######
+#######Touch Actions From Juiceme "evtap app"#######
+#######      Idea From BackuMenu N900        #######
+#######           By RobbieThe1st            #######
+####################################################
+
+### Start
+
+
+T2S=/usr/bin/text2screen
+$T2S -s 1 -H center -y 460 -T 0xFFFF -t   ">>  Created By : Farhad Arghavan - Email : farhadarghavan@yahoo.com  <<";
+
+###
+
+
+y=0
+
+$T2S -c -B 0x0000	
+
+$T2S -s 2 -H center -y $y -T 0xFFFF -t  " --------------------------------------------------- "; y=$((y+15))
+$T2S -s 2 -H center -y $y -T 0xFF00 -t  "|>                Backup Menu N9 v 1.0             <|"; y=$((y+15))
+$T2S -s 2 -H center -y $y -T 0xFFFF -t  "|---------------------------------------------------|"; y=$((y+20))
+$T2S -s 2 -H center -y $y -T 0xFFFF -t  "|>>              > Start : Preparing ...            |";
+$T2S -s 2 -H left -y $y -T 0xF000 -t    "     Backup Menu"; y=$((y+18))
+$T2S -s 2 -H center -y $y -T 0xFFFF -t  "|---------------------------------------------------|"; y=$((y+40))
+
+
+###------------------ Tmpfs Creat
+
+$T2S -s 2 -H left -y $y -T 0xFFFF -t  "  > Creat tmpfs on /tmp ... ";
+	mkdir /tmp/bmdisk; chmod 777 /tmp/bmdisk
+	mount -t tmpfs -o size=256M tmpfs /tmp/bmdisk/
+	sleep 0.5
+$T2S -s 2 -H left -y $y -T 0x0F00 -t  "                            Done"; y=$((y+25))
+###------------------ Pack Backupmenu
+
+tar -cf /tmp/bmdisk/backupmenu.tar /opt/backupmenu/
+
+###------------------ Copy File System Needed
+
+$T2S -s 2 -H left -y $y -T 0xFFFF -t  "  > Copy Needed System File For Chroot ... ";
+sh /opt/backupmenu/3-Backupmenu-preparing-files
+sleep 0.5
+$T2S -s 2 -H left -y $y -T 0x0F00 -t  "                                           Done"; y=$((y+25))
+
+###------------------ Copy Backup Menu Files To tmpfs
+
+$T2S -s 2 -H left -y $y -T 0xFFFF -t  "  > Copy Backup Menu Files To tmpfs ... ";
+mkdir -p /tmp/bmdisk/opt/backupmenu/
+cp -rf /opt/backupmenu/* /tmp/bmdisk/opt/backupmenu/
+cp -rf /opt/backupmenu/files/* /tmp/bmdisk/
+sleep 0.5
+$T2S -s 2 -H left -y $y -T 0x0F00 -t  "                                        Done"; y=$((y+25))
+
+###------------------ Preparing some Busybox app
+cd /tmp/bmdisk/bin/
+ln -s ./busybox ./awk
+
+###------------------ Mount System To tmpfs
+
+$T2S -s 2 -H left -y $y -T 0xFFFF -t  "  > Mount System To tmpfs ... ";
+touch /tmp/bmdisk/etc/fstab
+touch /tmp/bmdisk/etc/mtab
+mount -o bind /dev /tmp/bmdisk/dev
+mount -o bind /sys /tmp/bmdisk/sys
+mount -o bind /proc /tmp/bmdisk/proc
+sleep 0.5
+$T2S -s 2 -H left -y $y -T 0x0F00 -t  "                              Done"; y=$((y+25))
+sleep 0.5
+###------------------ Chroot to tmpfs
+
+$T2S -s 2 -H left -y $y -T 0xFFFF -t  "  > Chroot to tmpfs ... ";
+
+sleep 2
+
+chroot /tmp/bmdisk/ ash /opt/backupmenu/4-Backupmenu-prestart
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

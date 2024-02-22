@@ -1,0 +1,131 @@
+####################################################
+#######            BackupMenu N9             #######
+#######         Created By Farfary           #######
+#######     <farhadarghavan@yahoo.com>       #######
+#######Touch Actions From Juiceme "evtap app"#######
+#######      Idea From BackuMenu N900        #######
+#######           By RobbieThe1st            #######
+####################################################
+### Start
+
+
+T2S=/usr/bin/text2screen
+$T2S -s 1 -H center -y 445 -T 0xFFFF -t   ">>  Created By : Farhad Arghavan - Email : farhadarghavan@yahoo.com  <<";	
+
+###
+
+
+y=0
+
+$T2S -c -B 0x0000	
+
+$T2S -s 2 -H center -y $y -T 0xFFFF -t  " --------------------------------------------------- "; y=$((y+15))
+$T2S -s 2 -H center -y $y -T 0xFF00 -t  "|>               Backup Menu N9 v 1.0              <|"; y=$((y+15))
+$T2S -s 2 -H center -y $y -T 0xFFFF -t  "|---------------------------------------------------|"; y=$((y+20))
+$T2S -s 2 -H center -y $y -T 0xFFFF -t  "|>>             > Start :                           |";
+$T2S -s 2 -H left -y $y -T 0xF000 -t  "    Backup Menu"; y=$((y+18))
+$T2S -s 2 -H center -y $y -T 0xFFFF -t  "|---------------------------------------------------|"; y=$((y+40))
+
+
+$T2S -s 2 -H left -y $y -T 0xFFFF -t  "  >> B ) Create a Backup"; y=$((y+25))
+$T2S -s 2 -H left -y $y -T 0xFFFF -t  "  >> R ) Restore a Backup"; y=$((y+25))
+$T2S -s 2 -H left -y $y -T 0xFFFF -t  "  >> U ) USB Mass Storage Mode"; y=$((y+25))
+
+$T2S -s 2 -H left -y $y -T 0xFFFF -t  "  >> E ) Extra Functions Menu";
+
+$T2S -s 2 -H left -y 280 -T 0xF000 -t  "  >> Q ) Quit and Reboot"; y=$((y+20))
+
+
+$T2S -s 2 -H center -y 335 -T 0xFFFF -t " -------  -------  -------  -------           -------";
+$T2S -s 2 -H center -y 350 -T 0xFFFF -t " |     |  |     |  |     |  |     |           |     |";
+$T2S -s 2 -H center -y 365 -T 0xFFFF -t " |     |  |     |  |     |  |     |           |     |";
+$T2S -s 2 -H center -y 380 -T 0xFFFF -t " |     |  |     |  |     |  |     |           |     |";
+$T2S -s 2 -H center -y 395 -T 0xFFFF -t " |  B  |  |  R  |  |  U  |  |  E  |           |  Q  |";
+$T2S -s 2 -H center -y 410 -T 0xFFFF -t " |     |  |     |  |     |  |     |           |     |";
+$T2S -s 2 -H center -y 425 -T 0xFFFF -t " |     |  |     |  |     |  |     |           |     |";
+$T2S -s 2 -H center -y 440 -T 0xFFFF -t " -------  -------  -------  -------           -------";
+
+
+
+
+
+
+
+	t=49
+	tt=1
+	touch=`cat /proc/bus/input/devices | grep  -A 4 "mXT" | grep "Handlers" | cut -b 13-`
+	
+	while [ "$tt" -le $t ]
+	do
+		xx=$(/sbin/evtap -t /dev/input/$touch -m /opt/backupmenu/map/6button.map -n)
+		
+		## Backup
+		
+			if [ "$xx" == "1" ]; then
+		
+			sh /opt/backupmenu/menu/m-b
+			fi
+		
+		## Restore
+		
+			if [ "$xx" == "2" ]; then
+		
+			sh /opt/backupmenu/menu/m-r
+			fi
+			
+		## SSHD USB
+		
+			#if [ "$xx" == "3" ]; then
+		
+			#sh /opt/backupmenu/menu/m-sshd
+			#fi
+		
+		## USB Mass Storage Mode
+		
+			if [ "$xx" == "3" ]; then
+		
+			sh /opt/backupmenu/menu/m-ms
+			fi
+			
+		## Extra
+		
+			if [ "$xx" == "4" ]; then
+		
+			sh /opt/backupmenu/menu/m-e
+			fi
+			
+		## Quit
+		
+			if [ "$xx" == "6" ]; then
+		
+			sh /opt/backupmenu/reboot
+			fi
+		##
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+	
+	done
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

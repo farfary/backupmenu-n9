@@ -1,0 +1,49 @@
+####################################################
+#######            BackupMenu N9             #######
+#######         Created By Farfary           #######
+#######     <farhadarghavan@yahoo.com>       #######
+#######Touch Actions From Juiceme "evtap app"#######
+#######      Idea From BackuMenu N900        #######
+#######           By RobbieThe1st            #######
+####################################################
+
+### Start
+
+
+T2S=/usr/bin/text2screen
+$T2S -s 1 -H center -y 460 -T 0xFFFF -t   ">>  Created By : Farhad Arghavan - Email : farhadarghavan@yahoo.com  <<";	
+name=`busybox uname -r`
+###
+
+y=208
+                                                                    
+$T2S -s 2 -H left -y $y -T 0x0F00 -t  "                        Done"; y=$((y+25))
+
+###------------------ Un Mount All Partitions
+
+$T2S -s 2 -H left -y $y -T 0xFFFF -t  "  > Mount System To tmpfs ... ";
+
+mount /dev/mmcblk0p1 /mnt/mydoc || mount -t ntfs-3g /dev/mmcblk0p1 /mnt/mydoc
+mount /dev/mmcblk0p2 /mnt/rootfs
+mount /dev/mmcblk0p3 /mnt/home
+mount -t devpts devpts /dev/pts
+mknod /dev/ptmx c 5 2
+insmod /lib/modules/$name/phonet.ko
+insmod /lib/modules/$name/g_nokia.ko
+insmod /lib/modules/$name/leds-lp5523.ko
+umount -n -t ubifs
+
+if [ ! -d /mnt/mydoc/Backupmenu ]; then
+mkdir /mnt/mydoc/Backupmenu
+fi
+
+sleep 1
+$T2S -s 2 -H left -y $y -T 0x0F00 -t  "                              Done"; y=$((y+25))
+
+###
+
+$T2S -s 2 -H left -y $y -T 0xFFFF -t  "  > Loading Backup Menu ..."; y=$((y+25))
+
+sleep 2
+
+sh /opt/backupmenu/4-Backupmenu-start

@@ -1,0 +1,99 @@
+####################################################
+#######            BackupMenu N9             #######
+#######         Created By Farfary           #######
+#######     <farhadarghavan@yahoo.com>       #######
+#######Touch Actions From Juiceme "evtap app"#######
+#######      Idea From BackuMenu N900        #######
+#######           By RobbieThe1st            #######
+####################################################
+### Start
+
+
+T2S=/usr/bin/text2screen
+$T2S -s 1 -H center -y 445 -T 0xFFFF -t   ">>  Created By : Farhad Arghavan - Email : farhadarghavan@yahoo.com  <<";	
+
+###
+
+
+y=0
+
+$T2S -c -B 0x0000	
+
+$T2S -s 2 -H center -y $y -T 0xFFFF -t  " --------------------------------------------------- "; y=$((y+15))
+$T2S -s 2 -H center -y $y -T 0xFF00 -t  "|>               Backup Menu N9 v 1.1              <|"; y=$((y+15))
+$T2S -s 2 -H center -y $y -T 0xFFFF -t  "|---------------------------------------------------|"; y=$((y+20))
+$T2S -s 2 -H center -y $y -T 0xFFFF -t  "|>>             > Start >> SSHD USB                 |";
+$T2S -s 2 -H left -y $y -T 0xF000 -t  "    Backup Menu"; y=$((y+18))
+$T2S -s 2 -H center -y $y -T 0xFFFF -t  "|---------------------------------------------------|"; y=$((y+60))
+
+$T2S -s 4 -H center -y $y -T 0x0F00 -t  "  SSHD USB Started !"; y=$((y+60))
+
+
+$T2S -s 2 -H center -y 335 -T 0xFFFF -t "                                              -------";
+$T2S -s 2 -H center -y 350 -T 0xFFFF -t "                                              |     |";
+$T2S -s 2 -H center -y 365 -T 0xFFFF -t "                                              |     |";
+$T2S -s 2 -H center -y 380 -T 0xFFFF -t "                                              |     |";
+$T2S -s 2 -H center -y 395 -T 0xFFFF -t "    B ) Back To Main Menu                     |  B  |";
+$T2S -s 2 -H center -y 410 -T 0xFFFF -t "                                              |     |";
+$T2S -s 2 -H center -y 425 -T 0xFFFF -t "                                              |     |";
+$T2S -s 2 -H center -y 440 -T 0xFFFF -t "                                              -------";
+
+
+
+				modprobe -r phonet
+				modprobe -r g_nokia
+				modprobe -r g_file_storage
+				modprobe  g_ether
+				
+				if [ ! -d /var/run/sshd ]; then
+				mkdir -p /var/run/sshd
+				chmod 0755 /var/run/sshd
+				fi
+						
+				mount -t devpts devpts -o gid=5,mode=620 /dev/pts
+				/usr/sbin/sshd -f /opt/multiboot/root_sshd_config
+						
+				rm /opt/backupmenu/usbstatus
+				echo "usbstatus=USB SSHD" > /opt/backupmenu/usbstatus
+						
+						
+						
+						
+						
+	t=49
+	tt=1
+	touch=`cat /proc/bus/input/devices | grep  -A 4 "mXT" | grep "Handlers" | cut -b 13-`
+	
+	while [ "$tt" -le $t ]
+	do
+		xx=$(/sbin/evtap -t /dev/input/$touch -m /opt/backupmenu/map/6button.map -n)
+		
+
+			
+		## Quit
+		
+			if [ "$xx" == "6" ]; then
+		
+			sh /opt/backupmenu/4-Backupmenu-start
+			fi
+		##
+		
+		
+
+	
+	done
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,640 @@
+#!/bin/sh
+# Copyright(C) 2010 Nokia Corporation.
+
+#  This program is free software; you can redistribute it and/or modify
+#  it under the terms of the GNU General Public License version 2 as
+#  published by the Free Software Foundation.
+
+#  This program is distributed in the hope that it will be useful, but
+#  WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+#  General Public License for more details.
+
+#  You should have received a copy of the GNU General Public License
+#  along with this program; if not, write to the Free Software
+#  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301
+#  USA
+
+echo_g()
+{
+	echo "preinit: $@"
+}
+
+start_watchdog_kicker()
+{
+	# if WD is disabled then don't start kicker
+        # or if kicker is started already then no need to start again
+	wd_flags=$(sysinfoclient -p /device/rd-flags 2> /dev/null)
+	echo $wd_flags | grep  no-omap-wd &> /dev/null
+	if [ $? -ne 0 ] &&
+           [ -z "$omap_wd_started" ] ; then
+		echo_g "Enabling omap WD kicker"
+		exec 6> /dev/watchdog
+		while :; do
+			echo XXX 1>&6
+                        #echo "Kick omap WD"
+			sleep 10
+		done &
+		omap_wd_started=1
+	fi
+
+	echo $wd_flags | grep  no-ext-wd &> /dev/null
+	if [ $? -ne 0 ] &&
+           [ -z "$ext_wd_started" ]; then
+		echo_g "Enabling ext WD kicker"
+		exec 7> /dev/twl4030_wdt
+		while :; do
+			echo XXX 1>&7
+                        #echo "Kick ext WD"
+			sleep 10
+		done &
+		ext_wd_started=1
+	fi
+}
+
+stop_watchdog_kicker()
+{
+	if [ -n "$omap_wd_started" ]; then
+		echo_g "Disabling omap WD kicker"
+		for i in `lsof -d 6 -p ^$$ -t`; do
+		  if [ -d /proc/$i ]; then kill -9 $i; fi
+		done
+		unset omap_wd_started
+		# One more kick before closing
+		echo XXX 1>&6
+		exec 6<&-
+	fi
+	if [ -n "$ext_wd_started" ]; then
+		echo_g "Disabling ext WD kicker"
+		for i in `lsof -d 7 -p ^$$ -t`; do
+		  if [ -d /proc/$i ]; then kill -9 $i; fi
+		done
+		unset ext_wd_started
+		# One more kick before closing
+		echo XXX 1>&7
+		exec 7<&-
+	fi
+}
+
+check_rootfs()
+{
+	if ! which tune2fs &> /dev/null; then
+		echo_g "Could not find tune2fs. Skipping filesystem check."
+		return 0
+	fi
+	rootdev=/dev/mmcblk0p2
+	state=`tune2fs -l $rootdev | sed -n 's/Filesystem state: *//p'`
+
+	case "$state" in
+	clean)
+		# Clear the test_fs flag if it was set. This filesystem is ok.
+		tune2fs -E ^test_fs $rootdev > /dev/null
+		echo_g "Root filesystem state ok"
+		;;
+
+	*)
+		# if bootloader hasn't mounted rootfs as read-only or we cannot do it
+		# then it is more safe to skip the whole fsck.
+		mount -o remount,ro / > /dev/null
+		if [ "$?" != 0 ] ; then
+			echo_g "Failed to mount rootfs as read-only. Skipping fsck."
+			return 0
+		fi
+
+		echo_g "Filesystem in $rootdev is not clean, running fsck"
+		start_watchdog_kicker
+
+		#
+		# First check the test_fs flag. In case it is already set, we know that
+		# we have already tried to run fsck on the device and it failed. Now
+		# there is nothing more to do than halt the system and maybe display
+		# some message to user that the device should be sent to re-flashing
+		# etc.
+		#
+		if tune2fs -l $rootdev | sed -n 's/Filesystem flags: *//p' | grep -q 'test_filesystem'; then
+			echo_g "Filesystem repair has failed. The device needs to be re-flashed."
+			sleep 5
+			stop_watchdog_kicker
+			/sbin/poweroff -f
+		fi
+
+		e2fsck -y $rootdev
+		exitval="$?"
+		echo_g "Filesystem repair finished with exit code: $exitval"
+		if [ "$exitval" -gt "2" ]; then
+			#
+			# Now set the test flag. This is to ensure that we don't end up in a
+			# reboot loop if fsck fails.
+			#
+			tune2fs -E test_fs $rootdev > /dev/null
+		fi
+		sleep 1
+		stop_watchdog_kicker
+		/sbin/reboot -f
+	esac
+}
+
+# FIXME: is this required anymore
+create_madc()
+{
+	mount -t tmpfs none -o size=512K /tmp
+	mount -n -t tmpfs -o size=256k,mode=0755,nosuid,noatime tmpfs /var/run
+
+	mkdir /tmp/dev
+	# The twl4030 can either be named twl4030-adc or twl4030-madc.
+	# So we check for both.
+
+	madc_minor=$(grep twl4030-adc /proc/misc | cut -d " " -f 2)
+
+	if [ -z "$madc_minor" ] ; then
+		madc_minor=$(grep twl4030-madc /proc/misc | cut -d " " -f 2)
+	fi
+
+	if [ -n "$madc_minor" ] ; then
+		mknod /tmp/dev/twl4030-adc c 10 $madc_minor
+	fi
+}
+
+# FIXME: is this required anymore
+fini_madc()
+{
+	umount /tmp
+	umount /var/run
+}
+
+init_system()
+{
+	mount -t proc none /proc
+	mount -t sysfs none /sys
+	mount -t devtmpfs devtmpfs /dev
+
+	check_rootfs
+	mount -o remount,noatime,rw /  2> /dev/null
+        [ -e /etc/mtab ] && [ ! -L /etc/mtab ] && rm -f /etc/mtab
+        [ -L /etc/mtab ] || ln -sf /proc/mounts /etc/mtab
+}
+
+mount_var()
+{
+    if [ -d /var/lib ]; then
+	echo_g "/var is still in rootfs. No changes"
+    else
+	echo_g "Loading UBI module..."
+	modprobe ubi
+	echo_g "Mounting UBIFS on /dev/mtd4 as /var..."
+	ubiattach /dev/ubi_ctrl -m 4
+	mount -o no_chk_data_crc,bulk_read -t ubifs ubi0:var /var/
+    fi
+}
+
+fini_system()
+{
+	if [ ! -z "$have_ptys" ] ; then
+		umount /dev/pts
+	fi
+	umount /sys
+	# /etc/mtab is linked /proc/mounts, and unmount tries to change
+	# /etc/mtab which causes warnings. To prevent them, we unmount /proc
+	# last and direct its warning message to /dev/null
+	umount /proc 2> /dev/null
+}
+
+set_default_root_params()
+{
+        root_dev=mmcblk0
+        root_dev_name="MMC"
+        root_dev_set=1
+        root_fstype=""
+        root_fsoptions=""
+        root_mounted=1
+}
+
+show_roots()
+{
+        echo "Choose bootup option:"
+        echo "  1) Normal boot"
+        echo "  9) Start a shell"
+        echo ""
+}
+
+start_pty_system()
+{
+    if [ -z "$have_ptys" ] ; then
+	if [ -e /dev/ptmx ] ; then
+		rm /dev/ptmx
+	fi
+	mknod /dev/ptmx c 5 2
+	chmod 666 /dev/ptmx
+
+	if [ ! -d /dev/pts ] ; then
+		mkdir /dev/pts
+	fi
+	mount -t devpts devpts -o gid=5,mode=620 /dev/pts
+
+	have_ptys=1
+    fi
+}
+
+start_shell()
+{
+	# Make sure we have PTY system supported, so that we would support ssh
+	# connections
+	start_pty_system
+
+	grep "console=ttyS.," -q /proc/cmdline
+	if [ "$?" -eq 0 ] ; then
+		tty=`cat /proc/cmdline | sed 's/.*console=\(ttyS[0-9]\),.*/\1/'`
+	else
+		tty=ttyS0
+	fi
+
+	echo "Starting shell at $tty"
+
+	# start madc - FIXME?
+	create_madc
+
+	# We use getty instead of just running /bin/sh because we want to have
+	# job control working (e.g., we want Ctrl-C). With /bin/sh this does
+	# not work, not sure why. Note, "-n -l /bin/sh" options make sure
+	# that username/passeord are not asked for.
+	/sbin/getty 115200 $tty -n -l /bin/sh
+
+	# finish madc - FIXME?
+	fini_madc
+}
+
+show_nokia_logo()
+{
+	if [  -f /usr/share/themes/blanco/meegotouch/images/system-services/booting.png -a -x /usr/bin/show_png ]; then
+	    /usr/bin/show_png /usr/share/themes/blanco/meegotouch/images/system-services/booting.png
+        # fallback to bmp
+        elif [  -f /usr/share/themes/blanco/meegotouch/images/system-services/booting.bmp -a -x /usr/sbin/show_bmp ]; then
+            /usr/sbin/show_bmp -i /usr/share/themes/blanco/meegotouch/images/system-services/booting.bmp
+	fi
+}
+
+show_rd_versions()
+{
+        bg_color=black
+        y=0
+        x=0
+        line_height=20
+        txt_color=0xffffff
+
+        text2screen -c -x 0 -y 0 -w 800 -h 160 -B $bg_color
+        text2screen -t "Kernel version:" -s 2 -x $x -y $y -T $txt_color -B $bg_color
+        y=$(expr $y + $line_height)
+        text2screen -t "  `uname -r` " -s 2 -x $x -y $y -T $txt_color -B $bg_color
+        y=$(expr $y + $line_height)
+        text2screen -t "  `uname -v`" -s 2 -x $x -y $y -T $txt_color -B $bg_color
+
+        y=$(expr $y + $line_height + $line_height)
+        text2screen -t "  bootreason: $bootreason" -s 2 -x $x -y $y -T $txt_color -B $bg_color
+
+        y=340
+        text2screen -c -y 320 -x 0 -w 320 -h 120 -B $bg_color
+        text2screen -t "Component versions:" -x $x -y $y -s 2 -T $txt_color -B $bg_color
+        y=$(expr $y + $line_height)
+        # duplicate old functionality without /proc/component_version
+        PRODUCT=`sysinfoclient -p /component/product`
+        HWBUILD=`sysinfoclient -p /component/hw-build`
+        NOLO=`sysinfoclient -p /component/nolo`
+        for line in "product     $PRODUCT" "hwbuild     $HWBUILD" "nolo        $NOLO" "boot-mode   $bootmode"; do
+                text2screen -t "  $line" -x $x -y $y -s 2 -T $txt_color -B $bg_color
+                y=$(expr $y + $line_height)
+        done
+}
+
+boot()
+{
+	set_default_root_params
+	fini_system
+	if [ ! -x /sbin/init ]; then
+		echo_g "/sbin/init not found on root device"
+		return 1
+	fi
+
+	# restrictions for stack size (2MB) etc
+	ulimit -s 2048
+	ulimit -m 180224
+	ulimit -c unlimited
+
+	exec $CHROOT /sbin/init "$@" <dev/console >dev/console 2>&1
+}
+
+droidboot()
+{
+	mknod /tmp/mmcblk0   b 179 0
+	mknod /tmp/mmcblk0p3 b 179 3
+	mkdir -p /mnt
+	mount -t ext4 /tmp/mmcblk0p3 /mnt
+	cd /mnt
+	stop_watchdog_kicker
+	exec chroot /mnt/nitdroid /init
+}
+
+read_cfg_from_file()
+{
+	CFG=/etc/pmconfig
+	mount -t debugfs debugfs /sys/kernel/debug/
+	awk -f /sbin/read_cfg.awk $CFG
+	umount /sys/kernel/debug/
+}
+
+failmsg()
+{
+        text2screen -c -x 0 -y 0 -w 800 -h 160 -B black
+	text2screen -t "$1" -s 2 -x 0 -y 0 -T 0xff0000 -B white
+	sleep 2
+}
+
+
+multiboot()
+{
+	modprobe vibra_spi
+	modprobe twl4030_keypad
+	modprobe twl4030_pwrbutton
+        mknod /tmp/touchscreen c 13 67
+        mknod /tmp/vibra c 13 70
+	mknod /tmp/keypad c 13 68
+
+	/usr/bin/show_png /opt/multiboot/multiboot-full.png
+	touch=`cat /proc/bus/input/devices | grep  -A 4 "mXT" | grep "Handlers" | cut -b 13-`
+	ii=15
+	LIMIT=1
+	yy=470
+	while [ "$LIMIT" -le $ii ]
+	do
+		let "ii-=1"
+		let "yy=yy-10"
+		#text2screen -t " " -s 1 -x 0 -y $yy -T 0xffffff -B 0xffffff #android
+		#text2screen -t " " -s 1 -x 840 -y $yy -T 0xffffff -B 0xffffff #meego
+
+		
+		xycoords=$(/sbin/evtap -t /dev/input/$touch -d 1000 -xy)
+		
+			xcoord=$(echo $xycoords | awk -F : '{print $1}')
+			ycoord=$(echo $xycoords | awk -F : '{print $2}')
+			
+			if [ "$xcoord" -lt "240" ] && [ "$ycoord" -lt "240" ]; then
+					echo "SSHD"
+					/usr/bin/show_png /opt/multiboot/multiboot-sshd.png
+					sleep 1
+					sshd_start
+					break
+				fi
+			if [ "$xcoord" -lt "240" ] && [ "$ycoord" -gt "240" ]; then
+					echo "Backupmenu"
+					/usr/bin/show_png /opt/multiboot/multiboot-backupmenu.png
+					sleep 1					
+					backupmenu
+					break
+					
+				fi
+			if [ "$xcoord" -gt "240" ] && [ "$xcoord" -lt "550" ]; then
+				
+					echo "Android"
+					/usr/bin/show_png /opt/multiboot/multiboot-android.png
+					sleep 1
+					droidboot
+					break
+				fi
+			if [ "$xcoord" -gt "550" ]; then
+					echo "Meego"
+					/usr/bin/show_png /opt/multiboot/multiboot-meego.png
+					sleep 1
+					boot
+					break
+				fi
+				
+	done
+
+	## If we get here there was no user interaction, so do default boot
+	/usr/bin/show_png /usr/share/multiboot/meegoload.png
+	boot #meego
+
+}
+
+backupmenu()
+{
+	if [ ! -d /dev/pts ] ; then
+		mkdir /dev/pts
+	fi
+	mount -t devpts devpts -o gid=5,mode=620 /dev/pts
+	sh /opt/backupmenu/1-Welcome
+
+}
+
+
+
+sshd_start()
+{
+	if [ ! -d /dev/pts ] ; then
+		mkdir /dev/pts
+	fi
+	mount -t devpts devpts -o gid=5,mode=620 /dev/pts
+
+	/usr/sbin/sshd -f /opt/multiboot/root_sshd_config
+
+	text2screen -c -B 0x000000
+	text2screen -t "Running SSHD on USB" -s 3 -H center -V center
+
+        while [ "1" -le "2" ]
+        do
+                sleep 1
+        done
+ 
+}
+
+
+three_item_menu()
+{
+        modprobe vibra_spi                                                                                                                        
+        modprobe twl4030_keypad                                                                                                                   
+        modprobe twl4030_pwrbutton                                                                                                                
+
+	/usr/bin/show_png /root/juicemenu/juicemenu_full.png
+
+	iiii=49
+	iiLIMIT=1
+	iiyy=470
+	while [ "$iiLIMIT" -le $iiii ]
+	do
+		let "iiii-=1"
+		let "iiyy=iiyy-10"
+		text2screen -t " " -s 1 -x 840 -y $iiyy -T 0xffffff -B 0xffffff
+		selection=$(/bin/evtap -t /dev/input/ts -v /dev/input/vibra -m /root/juicemenu/juicemenu.map -d 200 -n)
+		if [ "$selection" != "timeout" ] && [ "$selection" != "-1" ]; then
+			if [ "$selection" == "1" ]; then
+				/usr/bin/show_png /root/juicemenu/juicemenu_terminal.png
+				sleep 1
+				sshd_start
+				break
+			fi
+			if [ "$selection" == "2" ]; then
+				/usr/bin/show_png /root/juicemenu/juicemenu_android.png
+				sleep 1
+				droidboot
+				break
+			fi
+			if [ "$selection" == "3" ]; then
+				/usr/bin/show_png /root/juicemenu/juicemenu_meego.png
+				sleep 1
+				# /root/vibra_test -t /root/vibra -m >> /root/vibrations.txt &
+				boot
+				break;
+			fi
+		fi
+	done
+
+        ## If we get here there was no user interaction, so do default boot
+        /usr/bin/show_png /root/juicemenu/juicemenu_meego.png
+        boot #meego
+}
+
+ 
+sshd_query()
+{
+        modprobe twl4030_keypad
+        mknod /tmp/keypadi c 13 68
+ 
+        text2screen -c -B 0x000000
+        text2screen -t "Press UP for ssh shell" -s 3 -H center -V center
+ 
+        iii=49
+        iLIMIT=1
+        iyy=470
+        while [ "$iLIMIT" -le $iii ]
+        do
+                let "iii-=1"
+                let "iyy=iyy-10"
+                text2screen -t " " -s 1 -x 840 -y $iyy -T 0xffffff -B 0xffffff
+                iss=$(/bin/evkey -t 200 -d /tmp/keypadi)
+                if [ "x$iss" == "x115" ]; then
+                        text2screen -c -B 0x000000
+                        text2screen -t "Going to start SSHD" -s 3 -H center -V center
+			sleep 2
+                        three_item_menu
+                        break
+                fi
+                if [ "x$iss" == "x114" ]; then
+                        text2screen -c -B 0x000000
+                        text2screen -t "Booting next stage" -s 3 -H center -V center
+                        sleep 2
+                        multiboot
+                        break
+                fi
+        done
+        if [ "x$iii" == "x0" ]; then
+                text2screen -c -B 0x000000
+                text2screen -t "Defaulting to booting next stage" -s 3 -H center -V center
+                sleep 2
+                multiboot
+        fi
+}
+ 
+
+
+init_system
+read_cfg_from_file
+mount_var
+/usr/sbin/sysinfod --static
+
+# set cpu scaling governor to performance for boot-time
+# its disabled in init-done and in local/test modes by system-services
+echo "performance" > /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor
+
+# set UART timeout to 10s
+echo 10 > /sys/devices/platform/serial8250.2/sleep_timeout
+
+#TODO: This does not exist anymore in 2.6.32, let's check if this will be needed at some
+#      point again.
+# Change ownership to allow locking for pulseaudio
+#chown pulse:pulse /sys/power/vdd2_lock
+
+serial_console=0
+#show_nokia_logo
+rd_mode=$(sysinfoclient -p /device/rd-mode 2> /dev/null)
+if [ "$rd_mode" = "enabled" ]; then
+        rd_mode=1
+        rd_flags=$(sysinfoclient -p /device/rd-flags 2> /dev/null)
+        echo_g "R&D mode enabled with flags: $rd_flags"
+        bootmode=`sysinfoclient -p /component/boot-mode`
+        bootreason=`sysinfoclient -p /component/boot-reason`
+        show_rd_versions
+        echo $rd_flags | grep serial-console &> /dev/null
+	if [ $? -eq 0 ] ; then
+	        serial_console=1;
+	fi
+	# enable sleep mode indication leds
+	si=`find  /sys/devices/virtual/gpio -name name | xargs grep sleep_ind | cut -d ":" -f 1| sed -e "s/name/value/"`
+	awk -v si_path=$si '/sleep_ind/{ print $2 > si_path }' < /etc/pmconfig
+else
+	rd_mode=0
+fi
+
+modprobe g_ether
+sleep 1
+/sbin/ifconfig usb0 192.168.2.15 up
+
+want_menu=0
+root_mounted=0
+if [ "$serial_console" -ne 0 ]; then
+	echo_g "Bootmode = '$bootmode', Bootreason = '$bootreason'"
+	if [ "x$bootmode" != "xupdate" ]; then
+		echo_g "Press any key for interactive startup"
+		read -n1 -t1
+		if [ $? -eq 0 ]; then
+				want_menu=1
+		fi
+	fi
+fi
+
+start_watchdog_kicker
+
+echo_g "juiceboot here"
+
+#three_item_menu
+#sshd_query
+#sshd_start
+#multiboot
+
+if [ -e /sbin/bootit ]
+then
+	. /sbin/bootit
+	rm -rf /sbin/bootit
+	$bootit
+else
+	multiboot
+fi
+
+
+
+#if [ "$want_menu" -ne 1 ]; then
+#	set_default_root_params
+#	boot
+#fi
+
+root="invalid"
+
+while [ true ]; do
+	show_roots
+	root_dev_set=0
+	read root
+	case "$root" in
+	1)
+		set_default_root_params
+		root_dev_set=1
+		;;
+	9)
+		start_shell
+		;;
+	*)
+		echo_g "Invalid selection"
+		;;
+	esac
+	if [ $root_dev_set -eq 1 ]; then
+		stop_watchdog_kicker
+		boot
+	fi
+done

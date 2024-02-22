@@ -1,0 +1,56 @@
+####################################################
+#######            BackupMenu N9             #######
+#######         Created By Farfary           #######
+#######     <farhadarghavan@yahoo.com>       #######
+#######Touch Actions From Juiceme "evtap app"#######
+#######      Idea From BackuMenu N900        #######
+#######           By RobbieThe1st            #######
+####################################################
+
+#### Create Needed Dir
+
+mkdir /tmp/sfsdisk; chmod 777 /tmp/sfsdisk
+mount -t tmpfs -o size=256M tmpfs /tmp/sfsdisk/
+
+mkdir -p /tmp/sfsdisk/bin
+mkdir -p /tmp/sfsdisk/usr
+mkdir -p /tmp/sfsdisk/usr/lib
+mkdir -p /tmp/sfsdisk/usr/bin
+mkdir -p /tmp/sfsdisk/usr/sbin
+mkdir -p /tmp/sfsdisk/sbin
+mkdir -p /tmp/sfsdisk/lib
+mkdir -p /tmp/sfsdisk/lib/modules
+mkdir -p /tmp/sfsdisk/etc
+mkdir -p /tmp/sfsdisk/etc/ssh
+mkdir -p /tmp/sfsdisk/tmp
+mkdir -p /tmp/sfsdisk/tmp/mnt
+mkdir -p /tmp/sfsdisk/usr/share
+mkdir -p /tmp/sfsdisk/root
+mkdir -p /tmp/sfsdisk/dev
+mkdir -p /tmp/sfsdisk/sys
+
+mkdir -p /tmp/sfsdisk/tmp/sfsdisk
+mkdir -p /tmp/sfsdisk/mnt/mydoc
+mkdir -p /tmp/sfsdisk/mnt/home
+####
+
+cp -rf /mnt/rootfs/bin /tmp/sfsdisk/
+cp -rf /mnt/rootfs/usr/sbin /tmp/sfsdisk/usr/
+cp -rf /mnt/rootfs/sbin /tmp/sfsdisk/
+cp -rf /mnt/rootfs/lib /tmp/sfsdisk/
+cp -rf /mnt/rootfs/etc /tmp/sfsdisk/
+cp /mnt/rootfs/usr/bin/text2screen /tmp/sfsdisk/usr/bin/
+cp /mnt/rootfs/usr/bin/cksum /tmp/sfsdisk/usr/bin/
+cp /mnt/rootfs/usr/bin/cut /tmp/sfsdisk/usr/bin/
+cp /mnt/rootfs/usr/bin/passwd /tmp/sfsdisk/usr/bin/
+
+#### Backup Menu Files
+
+cp -rf /mnt/rootfs/opt/backupmenu /tmp/sfsdisk/opt/
+/mnt/rootfs/opt/backupmenu/files/usr/bin/tar -axvf /opt/backupmenu/files.tar -C /tmp/sfsdisk/
+
+#### Multiboot Files
+
+cp -rf /mnt/rootfs/opt/multiboot /tmp/sfsdisk/opt/
+
+

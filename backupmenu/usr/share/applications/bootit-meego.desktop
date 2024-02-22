@@ -1,0 +1,6 @@
+[Desktop Entry]
+Type=Application
+Name=Meego
+Categories=System;
+Exec=opensh -c "sh /opt/multiboot/bootit-meego"
+Icon=/opt/multiboot/bootit-meego.svg

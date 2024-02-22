@@ -1,0 +1,282 @@
+####################################################
+#######            BackupMenu N9             #######
+#######         Created By Farfary           #######
+#######     <farhadarghavan@yahoo.com>       #######
+#######Touch Actions From Juiceme "evtap app"#######
+#######      Idea From BackuMenu N900        #######
+#######           By RobbieThe1st            #######
+####################################################
+### Start
+
+
+T2S=/usr/bin/text2screen
+$T2S -s 1 -H center -y 445 -T 0xFFFF -t   ">>  Created By : Farhad Arghavan - Email : farhadarghavan@yahoo.com  <<";	
+
+###
+
+
+y=0
+
+$T2S -c -B 0x0000	
+
+$T2S -s 2 -H center -y $y -T 0xFFFF -t  " --------------------------------------------------- "; y=$((y+15))
+$T2S -s 2 -H center -y $y -T 0xFF00 -t  "|>               Backup Menu N9 v 1.1              <|"; y=$((y+15))
+$T2S -s 2 -H center -y $y -T 0xFFFF -t  "|---------------------------------------------------|"; y=$((y+20))
+$T2S -s 2 -H center -y $y -T 0xFFFF -t  "|>>             > Start :                           |";
+$T2S -s 2 -H left -y $y -T 0xF000 -t  "    Backup Menu"; y=$((y+18))
+$T2S -s 2 -H center -y $y -T 0xFFFF -t  "|---------------------------------------------------|"; y=$((y+40))
+
+
+$T2S -s 2 -H left -y $y -T 0xFF00 -t  "  >> W ) USB Mass Storage Read & Write"; y=$((y+20))
+$T2S -s 2 -H left -y $y -T 0xFF00 -t  "  >> R ) USB Mass Storage Read Only"; y=$((y+40))
+
+$T2S -s 2 -H left -y 280 -T 0xF000 -t  "  >> B ) Back To Main Menu"; y=$((y+20))
+
+
+$T2S -s 2 -H center -y 335 -T 0xFFFF -t " -------  -------                             -------";
+$T2S -s 2 -H center -y 350 -T 0xFFFF -t " |     |  |     |                             |     |";
+$T2S -s 2 -H center -y 365 -T 0xFFFF -t " |     |  |     |                             |     |";
+$T2S -s 2 -H center -y 380 -T 0xFFFF -t " |     |  |     |                             |     |";
+$T2S -s 2 -H center -y 395 -T 0xFFFF -t " |  W  |  |  R  |                             |  B  |";
+$T2S -s 2 -H center -y 410 -T 0xFFFF -t " |     |  |     |                             |     |";
+$T2S -s 2 -H center -y 425 -T 0xFFFF -t " |     |  |     |                             |     |";
+$T2S -s 2 -H center -y 440 -T 0xFFFF -t " -------  -------                             -------";
+
+
+
+	t=49
+	tt=1
+	touch=`cat /proc/bus/input/devices | grep  -A 4 "mXT" | grep "Handlers" | cut -b 13-`
+	
+	while [ "$tt" -le $t ]
+	do
+		xx=$(/sbin/evtap -t /dev/input/$touch -m /opt/backupmenu/map/6button.map -n)
+		
+		## Mass Storage Read & Write
+		
+			if [ "$xx" == "1" ]; then
+				
+				
+				
+				y=0
+
+				$T2S -c -B 0x0000	
+
+				$T2S -s 2 -H center -y $y -T 0xFFFF -t  " --------------------------------------------------- "; y=$((y+15))
+				$T2S -s 2 -H center -y $y -T 0xFF00 -t  "|>               Backup Menu N9 v 1.1              <|"; y=$((y+15))
+				$T2S -s 2 -H center -y $y -T 0xFFFF -t  "|---------------------------------------------------|"; y=$((y+20))
+				$T2S -s 2 -H center -y $y -T 0xFFFF -t  "|>>             > Start :                           |";
+				$T2S -s 2 -H left -y $y -T 0xF000 -t  "    Backup Menu"; y=$((y+18))
+				$T2S -s 2 -H center -y $y -T 0xFFFF -t  "|---------------------------------------------------|"; y=$((y+60))
+
+				$T2S -s 2 -H center -y $y -T 0xFF00 -t  "USB Mass Storage Read & Write Enabled"; y=$((y+20))
+			
+				modprobe -r phonet
+				modprobe -r g_nokia
+				modprobe -r g_file_storage
+				modprobe -r g_ether
+				
+				insmod /lib/modules/2.6.32.54-dfl61-20121301/g_file_storage.ko
+				sleep 1
+				
+				modprobe g_file_storage stall=0 luns=2 ro=0 removable
+				echo /dev/mmcblk0p1  > /sys/devices/platform/musb_hdrc/gadget/gadget-lun0/file
+				
+				#rm /opt/backupmenu/usbstatus
+				#echo "usbstatus="USB Mass Storage Mode ( Read & Write )"" > /opt/backupmenu/usbstatus
+				
+				
+				
+					$T2S -s 2 -H center -y 335 -T 0xFFFF -t "                                              -------";
+					$T2S -s 2 -H center -y 350 -T 0xFFFF -t "                                              |     |";
+					$T2S -s 2 -H center -y 365 -T 0xFFFF -t "                                              |     |";
+					$T2S -s 2 -H center -y 380 -T 0xFFFF -t "                                              |     |";
+					$T2S -s 2 -H center -y 395 -T 0xFFFF -t "    B ) Disable And Back To Main Menu         |  B  |";
+					$T2S -s 2 -H center -y 410 -T 0xFFFF -t "                                              |     |";
+					$T2S -s 2 -H center -y 425 -T 0xFFFF -t "                                              |     |";
+					$T2S -s 2 -H center -y 440 -T 0xFFFF -t "                                              -------";
+					
+					
+						t=49
+						tt=1
+						touch=`cat /proc/bus/input/devices | grep  -A 4 "mXT" | grep "Handlers" | cut -b 13-`
+	
+						while [ "$tt" -le $t ]
+							do
+								xx=$(/sbin/evtap -t /dev/input/$touch -m /opt/backupmenu/map/6button.map -n)
+								
+								if [ "$xx" != "-1" ]
+								then
+								
+									if [ "$xx" == "6" ]
+									then
+									
+										modprobe -r phonet
+										modprobe -r g_nokia
+										modprobe -r g_file_storage
+										modprobe -r g_ether
+									
+									
+									
+									
+									
+									sh /opt/backupmenu/4-Backupmenu-start
+									sleep 1
+									fi
+								fi
+							done
+							
+							
+				
+
+			
+			fi
+		
+		## Mass Storage Read Only
+		
+			if [ "$xx" == "2" ]; then
+		
+				y=0
+
+				$T2S -c -B 0x0000	
+
+				$T2S -s 2 -H center -y $y -T 0xFFFF -t  " --------------------------------------------------- "; y=$((y+15))
+				$T2S -s 2 -H center -y $y -T 0xFF00 -t  "|>               Backup Menu N9 v 1.1              <|"; y=$((y+15))
+				$T2S -s 2 -H center -y $y -T 0xFFFF -t  "|---------------------------------------------------|"; y=$((y+20))
+				$T2S -s 2 -H center -y $y -T 0xFFFF -t  "|>>             > Start :                           |";
+				$T2S -s 2 -H left -y $y -T 0xF000 -t  "    Backup Menu"; y=$((y+18))
+				$T2S -s 2 -H center -y $y -T 0xFFFF -t  "|---------------------------------------------------|"; y=$((y+60))
+
+				$T2S -s 2 -H center -y $y -T 0xFF00 -t  "USB Mass Storage Read Only Enabled"; y=$((y+20))
+			
+			
+				modprobe -r phonet
+				modprobe -r g_nokia
+				modprobe -r g_file_storage
+				modprobe -r g_ether
+				
+				sleep 1
+				modprobe g_file_storage stall=0 luns=2 ro=1 removable
+				echo /dev/mmcblk0p1  > /sys/devices/platform/musb_hdrc/gadget/gadget-lun0/file
+				
+				#rm /opt/backupmenu/usbstatus
+				#echo "usbstatus="USB Mass Storage Mode ( Read Only )"" > /opt/backupmenu/usbstatus
+				
+					$T2S -s 2 -H center -y 335 -T 0xFFFF -t "                                              -------";
+					$T2S -s 2 -H center -y 350 -T 0xFFFF -t "                                              |     |";
+					$T2S -s 2 -H center -y 365 -T 0xFFFF -t "                                              |     |";
+					$T2S -s 2 -H center -y 380 -T 0xFFFF -t "                                              |     |";
+					$T2S -s 2 -H center -y 395 -T 0xFFFF -t "    B ) Disable And Back To Main Menu         |  B  |";
+					$T2S -s 2 -H center -y 410 -T 0xFFFF -t "                                              |     |";
+					$T2S -s 2 -H center -y 425 -T 0xFFFF -t "                                              |     |";
+					$T2S -s 2 -H center -y 440 -T 0xFFFF -t "                                              -------";
+					
+					
+						t=49
+						tt=1
+						touch=`cat /proc/bus/input/devices | grep  -A 4 "mXT" | grep "Handlers" | cut -b 13-`
+	
+						while [ "$tt" -le $t ]
+							do
+								xx=$(/sbin/evtap -t /dev/input/$touch -m /opt/backupmenu/map/6button.map -n)
+								
+								if [ "$xx" != "-1" ]
+								then
+								
+									if [ "$xx" == "6" ]
+									then
+									
+										modprobe -r phonet
+										modprobe -r g_nokia
+										modprobe -r g_file_storage
+										modprobe -r g_ether
+									
+									
+									
+									
+									
+									sh /opt/backupmenu/4-Backupmenu-start
+									sleep 1
+									fi
+								fi
+							done
+			
+			
+			
+			
+			fi
+			
+
+		## Quit
+		
+			if [ "$xx" == "6" ]; then
+		
+			sh /opt/backupmenu/4-Backupmenu-start
+			fi
+		##
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+	
+	done
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

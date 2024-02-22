@@ -1,0 +1,183 @@
+####################################################
+#######            BackupMenu N9             #######
+#######         Created By Farfary           #######
+#######     <farhadarghavan@yahoo.com>       #######
+#######Touch Actions From Juiceme "evtap app"#######
+#######      Idea From BackuMenu N900        #######
+#######           By RobbieThe1st            #######
+####################################################
+
+### Start
+
+
+T2S=/usr/bin/text2screen
+$T2S -s 1 -H center -y 460 -T 0xFFFF -t   ">>  Created By : Farhad Arghavan - Email : farhadarghavan@yahoo.com  <<"; y=$((y+15))	
+
+###
+
+y=0
+
+$T2S -c -B 0x0000	
+
+$T2S -s 2 -H center -y $y -T 0xFFFF -t   " --------------------------------------------------- "; y=$((y+15))
+$T2S -s 2 -H center -y $y -T 0xFF00 -t  "|>               Backup Menu N9 v 1.1              <|"; y=$((y+15))
+$T2S -s 2 -H center -y $y -T 0xFFFF -t  "|---------------------------------------------------|"; y=$((y+20))
+$T2S -s 2 -H center -y $y -T 0xFFFF -t  "|>>             > Start > Restore > Home :          |";
+$T2S -s 2 -H left -y $y -T 0xF000 -t  "    Backup Menu"; y=$((y+18))
+$T2S -s 2 -H center -y $y -T 0xFFFF -t  "|---------------------------------------------------|"; y=$((y+40))
+
+
+	$T2S -s 2	-H left -y $y -T 0xFF00 -t  " List Of Home Backup Available :"; y=$((y+25))
+	
+
+		$T2S -s 2 -H center -y 335 -T 0xFFFF -t " -------  -------  -------  -------  -------  -------";
+		$T2S -s 2 -H center -y 350 -T 0xFFFF -t " |     |  |     |  |     |  |     |  |     |  |     |";
+		$T2S -s 2 -H center -y 365 -T 0xFFFF -t " |     |  |     |  |     |  |     |  |     |  |     |";
+		$T2S -s 2 -H center -y 380 -T 0xFFFF -t " |     |  |     |  |     |  |     |  |     |  |     |";
+		$T2S -s 2 -H center -y 395 -T 0xFFFF -t " |  1  |  |  2  |  |  3  |  |  4  |  |  5  |  |  Q  |";
+		$T2S -s 2 -H center -y 410 -T 0xFFFF -t " |     |  |     |  |     |  |     |  |     |  |     |";
+		$T2S -s 2 -H center -y 425 -T 0xFFFF -t " |     |  |     |  |     |  |     |  |     |  |     |";
+		$T2S -s 2 -H center -y 440 -T 0xFFFF -t " -------  -------  -------  -------  -------  -------";
+		
+		rm /opt/backupmenu/listbackup.txt
+		echo `busybox find /mnt/mydoc/Backupmenu -name "*-home.tar*"` > /opt/backupmenu/listbackup.txt
+		homebackupcuted=`busybox find /mnt/mydoc/Backupmenu -name "*-home.tar*" | cut -b 23- | cut -b -13`
+		b=1
+		for f in $homebackupcuted
+			do
+			
+			y=$((y+20))
+			$T2S -s 2 -H left -y $y -T 0x0F00 -t  "      $f ";
+			$T2S -s 2 -H left -y $y -T 0xFFFF -t   " $b >>    ";	y=$((y+5))
+			filedist=`awk -v fld=$b '{if(NF>=fld) {print $fld} } ' /opt/backupmenu/listbackup.txt`
+			$T2S -s 1 -H right -y $y -T 0xFF00 -t "  Backup Dist : $filedist        " ;
+			b=$((b+1))
+			
+		done
+		
+	sleep 1
+t=49
+tt=1
+touch=`cat /proc/bus/input/devices | grep  -A 4 "mXT" | grep "Handlers" | cut -b 13-`
+	
+while [ "$tt" -le $t ]
+	do
+
+	xx=$(/sbin/evtap -t /dev/input/$touch -m /opt/backupmenu/map/6button.map -n)
+	filedist=`awk -v fld=$xx '{if(NF>=fld) {print $fld} } ' /opt/backupmenu/listbackup.txt`
+	
+	$T2S -s 1 -H left -y 320 -T 0xFF00 -t "  Backup Dist : $filedist" ;		
+	
+	if [ "$xx" != "-1" ]; then
+	if [ "$xx" == "6" ]; then
+	
+	sh /opt/backupmenu/4-Backupmenu-start
+	else
+	
+	y=0
+
+	$T2S -c -B 0x0000	
+
+	$T2S -s 2 -H center -y $y -T 0xFFFF -t   " --------------------------------------------------- "; y=$((y+15))
+	$T2S -s 2 -H center -y $y -T 0xFF00 -t  "|>                Backup Menu N9 v 1.1             <|"; y=$((y+15))
+	$T2S -s 2 -H center -y $y -T 0xFFFF -t  "|---------------------------------------------------|"; y=$((y+20))
+	$T2S -s 2 -H center -y $y -T 0xFFFF -t  "|>>             > Start > Restore > Home :          |";
+	$T2S -s 2 -H left -y $y -T 0xF000 -t  "    Backup Menu"; y=$((y+18))
+	$T2S -s 2 -H center -y $y -T 0xFFFF -t  "|---------------------------------------------------|"; y=$((y+40))
+
+
+	$T2S -s 2	-H left -y $y -T 0xFF00 -t  " Are You Sure To Restore Backuo Of Home ?"; y=$((y+25))
+	$T2S -s 2 -H center -y 250 -T 0xFF00 -t  "File: $filedist";
+
+		$T2S -s 2 -H center -y 335 -T 0xFFFF -t " -------                                      -------";
+		$T2S -s 2 -H center -y 350 -T 0xFFFF -t " |     |                                      |     |";
+		$T2S -s 2 -H center -y 365 -T 0xFFFF -t " |     |                                      |     |";
+		$T2S -s 2 -H center -y 380 -T 0xFFFF -t " |     |                                      |     |";
+		$T2S -s 2 -H center -y 395 -T 0xFFFF -t " |  Y  |                                      |  N  |";
+		$T2S -s 2 -H center -y 410 -T 0xFFFF -t " |     |                                      |     |";
+		$T2S -s 2 -H center -y 425 -T 0xFFFF -t " |     |                                      |     |";
+		$T2S -s 2 -H center -y 440 -T 0xFFFF -t " -------                                      -------";
+		
+		sleep 1
+		
+		t=49
+		tt=1
+		touch=`cat /proc/bus/input/devices | grep  -A 4 "mXT" | grep "Handlers" | cut -b 13-`
+	
+		while [ "$tt" -le $t ]
+		do
+		
+					select=$(/sbin/evtap -t /dev/input/$touch -m /opt/backupmenu/map/6button.map -n)
+
+			if [ "$select" != "-1" ]; then
+		
+				if [ "$select" == "1" ]; then
+				
+				
+					y=168
+					$T2S -c -B 0x0000 -x 0 -y 108 -w 854 -h 345		
+					$T2S -s 3 -x 20 -y 128 -T 0xF000 -t  "Clean Home ...";
+					
+					rm -rf /mnt/home/*
+					
+					$T2S -s 3 -x 20 -y 128 -T 0xF000 -t  "Clean Home ... Cleaned !"; y=$((y+40))
+
+					$T2S -s 3 -x 20 -y $y -T 0x0F00 -t  "Restoring Home ...";
+					
+					/usr/bin/tar -axvf $filedist -C /mnt/home/
+					
+					$T2S -s 3 -x 20 -y $y -T 0x0F00 -t  "Restoring Home ... Finished !"; y=$((y+40))
+					
+					$T2S -s 2 -H center -y 300 -T 0xFF00 -t  "File: $filedist";
+					
+					$T2S -s 2 -H center -y 335 -T 0xFFFF -t "                                              -------";
+					$T2S -s 2 -H center -y 350 -T 0xFFFF -t "                                              |     |";
+					$T2S -s 2 -H center -y 365 -T 0xFFFF -t "                                              |     |";
+					$T2S -s 2 -H center -y 380 -T 0xFFFF -t "                                              |     |";
+					$T2S -s 2 -H center -y 395 -T 0xFFFF -t "    B ) Back To Main Menu                     |  B  |";
+					$T2S -s 2 -H center -y 410 -T 0xFFFF -t "                                              |     |";
+					$T2S -s 2 -H center -y 425 -T 0xFFFF -t "                                              |     |";
+					$T2S -s 2 -H center -y 440 -T 0xFFFF -t "                                              -------";
+					
+					
+						t=49
+						tt=1
+						touch=`cat /proc/bus/input/devices | grep  -A 4 "mXT" | grep "Handlers" | cut -b 13-`
+	
+						while [ "$tt" -le $t ]
+							do
+								xx=$(/sbin/evtap -t /dev/input/$touch -m /opt/backupmenu/map/6button.map -n)
+								
+								if [ "$xx" != "-1" ]
+								then
+								
+									if [ "$xx" == "6" ]
+									then
+									sh /opt/backupmenu/menu/m-r
+									sleep 1
+									fi
+								fi
+							done
+							
+
+				fi
+				
+				
+				if [ "$select" == "6" ]; then
+			
+					sh /opt/backupmenu/4-Backupmenu-start
+				fi
+				
+			fi
+		
+		done	
+	fi
+	fi
+	
+		
+done	
+		
+		
+		
+		
+		

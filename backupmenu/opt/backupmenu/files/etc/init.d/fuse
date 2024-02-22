@@ -1,0 +1,117 @@
+#! /bin/sh
+### BEGIN INIT INFO
+# Provides:          fuse
+# Required-Start:    $local_fs
+# Required-Stop:     $local_fs
+# Default-Start:     S
+# Default-Stop:      0 6
+# Short-Description: Filesystem in userspace
+# Description:       This file load all what's needed to make fuse work fine
+### END INIT INFO
+
+# Author: Adam Cécile (Le_Vert) <gandalf@le-vert.net>
+
+PATH=/sbin:/usr/sbin:/bin:/usr/bin
+DESC="filesystem in userspace"
+NAME=fuse
+SCRIPTNAME=/etc/init.d/$NAME
+MOUNTPOINT=/sys/fs/fuse/connections
+PROG_MOUNT=/bin/mount
+PROG_UMOUNT=/bin/umount
+
+# Gracefully exit if the package has been removed.
+test -x `which fusermount` || exit 0
+
+# Load the VERBOSE setting and other rcS variables
+[ -f /etc/default/rcS ] && . /etc/default/rcS || true
+[ "$INIT_VERBOSE" ] && VERBOSE="$INIT_VERBOSE" || true
+
+# Define LSB log_* functions.
+. /lib/lsb/init-functions
+
+# Fall back to diffeent install paths  in case kernel module is not found
+FUSEKO=
+if [ -r /lib/modules/`uname -r`/extra/fuse.ko ] ; then
+	FUSEKO=/lib/modules/`uname -r`/extra/fuse.ko
+elif [ -r  /lib/modules/2.6.21-omap1/extra/fuse.ko] ; then
+	FUSEKO=/lib/modules/2.6.21-omap1/extra/fuse.ko
+elif [ -r `echo /lib/modules/*/extra/fuse.ko | cut -f1 -d" "` ] ; then
+	FUSEKO=`echo /lib/modules/*/extra/fuse.ko | cut -f1 -d" "`
+else
+	FUSEKO=/lib/modules/fuse.ko
+fi
+
+do_start()
+{
+	# Return
+	#   0 if fuse has been started
+	#   1 if kernel module load failed
+	#   2 if fusectl filesystem mount failed
+	[ -r $FUSEKO ] || return 1
+        if ! grep -q "fuse$" /proc/filesystems; then
+		insmod $FUSEKO >/dev/null 2>&1 || return 1
+        fi
+        if grep -q "fusectl$" /proc/filesystems && \
+           ! grep -q " $MOUNTPOINT " /proc/mounts; then
+                $PROG_MOUNT -t fusectl fusectl $MOUNTPOINT >/dev/null 2>&1 || \
+                        return 2
+        fi
+}
+
+do_stop()
+{
+	# Return
+	#   0 if fuse has been stopped
+	#   1 if kernel module unload failed
+	#   2 if fusectl filesystem umount failed
+        if grep -q " $MOUNTPOINT " /proc/mounts; then
+                $PROG_UMOUNT $MOUNTPOINT >/dev/null 2>&1 || \
+                        return 1
+        fi
+        if grep -q "^fuse " /proc/modules; then
+                rmmod fuse >/dev/null 2>&1 || return 2
+        fi
+}
+
+case "$1" in
+  start)
+	[ "$VERBOSE" != no ] && log_daemon_msg "Starting $DESC" "$NAME"
+	do_start
+	case "$?" in
+		0|1) [ "$VERBOSE" != no ] && log_end_msg 0 ;;
+		2) [ "$VERBOSE" != no ] && log_end_msg 1 ;;
+	esac
+	;;
+  stop)
+	[ "$VERBOSE" != no ] && log_daemon_msg "Stopping $DESC" "$NAME"
+	do_stop
+	case "$?" in
+		0|1) [ "$VERBOSE" != no ] && log_end_msg 0 ;;
+		2) [ "$VERBOSE" != no ] && log_end_msg 1 ;;
+	esac
+	;;
+  restart|force-reload)
+	log_daemon_msg "Restarting $DESC" "$NAME"
+	do_stop
+	case "$?" in
+	  0|1)
+		do_start
+		case "$?" in
+			0) log_end_msg 0 ;;
+			1) log_end_msg 1 ;; # Old process is still running
+			*) log_end_msg 1 ;; # Failed to start
+		esac
+		;;
+	  *)
+	  	# Failed to stop
+		log_end_msg 1
+		;;
+	esac
+	;;
+  *)
+	echo "Usage: $SCRIPTNAME {start|stop|restart|force-reload}" >&2
+	exit 3
+	;;
+esac
+
+:

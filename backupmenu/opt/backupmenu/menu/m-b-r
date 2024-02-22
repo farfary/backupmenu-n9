@@ -1,0 +1,184 @@
+####################################################
+#######            BackupMenu N9             #######
+#######         Created By Farfary           #######
+#######     <farhadarghavan@yahoo.com>       #######
+#######Touch Actions From Juiceme "evtap app"#######
+#######      Idea From BackuMenu N900        #######
+#######           By RobbieThe1st            #######
+####################################################
+
+### Start
+
+
+T2S=/usr/bin/text2screen
+$T2S -s 1 -H center -y 460 -T 0xFFFF -t   ">>  Created By : Farhad Arghavan - Email : farhadarghavan@yahoo.com  <<"; y=$((y+15))	
+
+date=$(date +'%Y%m%d-%H%M')
+mydocfree=`busybox df -h | grep "/dev/mmcblk0p1" | busybox tr -s 'usr/' ' ' | cut -d ' ' -f 6 | sed '2d'`
+rootfssize=`busybox df -h | grep "/dev/mmcblk0p2" | busybox tr -s 'usr/' ' ' | cut -d ' ' -f 5`
+
+###
+
+
+y=0
+
+$T2S -c -B 0x0000	
+
+$T2S -s 2 -H center -y $y -T 0xFFFF -t  " --------------------------------------------------- "; y=$((y+15))
+$T2S -s 2 -H center -y $y -T 0xFF00 -t  "|>               Backup Menu N9 v 1.1              <|"; y=$((y+15))
+$T2S -s 2 -H center -y $y -T 0xFFFF -t  "|---------------------------------------------------|"; y=$((y+20))
+$T2S -s 2 -H center -y $y -T 0xFFFF -t  "|>>             > Start > Backup > Rootfs           |";
+$T2S -s 2 -H left -y $y -T 0xF000 -t    "    Backup Menu"; y=$((y+18))
+$T2S -s 2 -H center -y $y -T 0xFFFF -t  "|---------------------------------------------------|"; y=$((y+40))
+
+$T2S -s 2 -H left -y $y -T 0xFF00 -t    "  MyDocs Free : $mydocfree";
+$T2S -s 2 -H right -y $y -T 0xFF00 -t    "Rootfs Size : $rootfssize  "
+$T2S -s 2 -H left -y $y -T 0xF000 -t    "                          |                          "; y=$((y+30))
+$T2S -s 2 -H center -y $y -T 0xFFFF -t  " FileName: ${date}-rootfs.tar"; y=$((y+30))
+
+$T2S -s 2 -H center -y $y -T 0xF000 -t  "Start Backuping rootfs Partitins ?"; y=$((y+40))
+$T2S -s 2 -H center -y $y -T 0xFFFF -t  "( Y ) Yes Or ( N ) No"; y=$((y+20))
+$T2S -s 2 -H left -y $y -T 0xFFFF -t  " "; y=$((y+20))
+$T2S -s 2 -H left -y 280 -T 0xF000 -t  " B ) Back To Main Menu"; y=$((y+20))
+
+$T2S -s 2 -H center -y 335 -T 0xFFFF -t " -------  -------                             -------";
+$T2S -s 2 -H center -y 350 -T 0xFFFF -t " |     |  |     |                             |     |";
+$T2S -s 2 -H center -y 365 -T 0xFFFF -t " |     |  |     |                             |     |";
+$T2S -s 2 -H center -y 380 -T 0xFFFF -t " |     |  |     |                             |     |";
+$T2S -s 2 -H center -y 395 -T 0xFFFF -t " |  Y  |  |  N  |                             |  B  |";
+$T2S -s 2 -H center -y 410 -T 0xFFFF -t " |     |  |     |                             |     |";
+$T2S -s 2 -H center -y 425 -T 0xFFFF -t " |     |  |     |                             |     |";
+$T2S -s 2 -H center -y 440 -T 0xFFFF -t " -------  -------                             -------";
+
+
+	t=49
+	tt=1
+	touch=`cat /proc/bus/input/devices | grep  -A 4 "mXT" | grep "Handlers" | cut -b 13-`
+	
+	while [ "$tt" -le $t ]
+	do
+		xx=$(/sbin/evtap -t /dev/input/$touch -m /opt/backupmenu/map/6button.map -n)
+		
+		## YES
+		
+			if [ "$xx" == "1" ]; then
+			
+					y=168
+					$T2S -c -B 0x0000 -x 0 -y 108 -w 854 -h 345
+					$T2S -s 3 -H center -y 128 -T 0xFF00 -t  "Backuping Rootfs ..."; y=$((y+40))
+					$T2S -s 2 -H center -y $y -T 0x0F00 -t  "FileName: ${date}-rootfs.tar";
+					
+					mount /dev/mmcblk0p2 /mnt/rootfs/
+					
+					
+					cd /mnt/rootfs/
+					/usr/bin/tar -cvf /mnt/mydoc/Backupmenu/${date}-rootfs.tar . --exclude=proc
+					
+					
+					rootfsbackupsize=`busybox du -h /mnt/mydoc/Backupmenu/${date}-rootfs.tar | cut -f1`
+					
+					y=168
+					$T2S -c -B 0x0000 -x 0 -y 108 -w 840 -h 345
+					$T2S -s 3 -H center -y 128 -T 0xFF00 -t  "Backuping Rootfs ... Finished";
+					$T2S -s 2 -H center -y $y -T 0x0F00 -t  "FileName: ${date}-rootfs.tar"; y=$((y+40))
+					$T2S -s 2 -H center -y $y -T 0xFF00 -t  "Rootfs Size: $rootfssize"; y=$((y+20))
+					$T2S -s 2 -H center -y $y -T 0xFF00 -t  "Backup Size: $rootfsbackupsize"; y=$((y+30))
+					$T2S -s 2 -H left -y $y -T 0xFFFF -t  "if backup size is very smaller than rootfs size maybe  backup is not safe ! with compressing maybe size    is smaller but not very smaller !"; y=$((y+20))
+					$T2S -s 2 -H center -y 335 -T 0xFFFF -t "                                              -------";
+					$T2S -s 2 -H center -y 350 -T 0xFFFF -t "                                              |     |";
+					$T2S -s 2 -H center -y 365 -T 0xFFFF -t "                                              |     |";
+					$T2S -s 2 -H center -y 380 -T 0xFFFF -t "                                              |     |";
+					$T2S -s 2 -H center -y 395 -T 0xFFFF -t "    B ) Back To Main Menu                     |  B  |";
+					$T2S -s 2 -H center -y 410 -T 0xFFFF -t "                                              |     |";
+					$T2S -s 2 -H center -y 425 -T 0xFFFF -t "                                              |     |";
+					$T2S -s 2 -H center -y 440 -T 0xFFFF -t "                                              -------";
+
+					
+						t=49
+						tt=1
+						touch=`cat /proc/bus/input/devices | grep  -A 4 "mXT" | grep "Handlers" | cut -b 13-`
+	
+						while [ "$tt" -le $t ]
+							do
+								xx=$(/sbin/evtap -t /dev/input/$touch -m /opt/backupmenu/map/6button.map -n)
+								
+								if [ "$xx" != "-1" ]
+								then
+								
+									if [ "$xx" == "6" ]
+									then
+									sh /opt/backupmenu/menu/m-b
+									sleep 1
+									fi
+								fi
+							done
+		
+
+					
+			fi
+		
+		## N0
+		
+			if [ "$xx" == "2" ]; then
+		
+			sh /opt/backupmenu/menu/m-b
+			fi
+			
+		## Back tp main menu
+		
+			if [ "$xx" == "6" ]; then
+		
+			sh /opt/backupmenu/4-Backupmenu-start
+			fi
+		##
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+	
+	done

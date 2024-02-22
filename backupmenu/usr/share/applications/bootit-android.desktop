@@ -1,0 +1,6 @@
+[Desktop Entry]
+Type=Application
+Name=Android
+Categories=System;
+Exec=opensh -c "sh /opt/multiboot/bootit-android"
+Icon=/opt/multiboot/bootit-android.png

@@ -1,0 +1,17 @@
+#!/bin/sh
+# This script adds droping gprs packages sent to ssh port (22)
+# Without this sshd allows connection attempts over GPRS. Even while the actual
+# login is disabled in sshd_config with AllowUsers from public IP addresses,
+# the ssh bots still generate unnecessary data traffic 
+# while attempting to login using dictionary attacks. See NB#263421
+
+set -e
+
+if [ "$IFACE" = lo -o "$MODE" != start -o "$ICD_CONNECTION_TYPE" != GPRS ]; then
+	exit 0
+fi
+
+iptables -L -v -n | grep -q '.*gprs.*dpt:22*' || iptables -A INPUT -i gprs0 -p tcp --dport 22 -j DROP
+
+exit 0
+

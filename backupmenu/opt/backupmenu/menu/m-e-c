@@ -1,0 +1,139 @@
+####################################################
+#######            BackupMenu N9             #######
+#######         Created By Farfary           #######
+#######     <farhadarghavan@yahoo.com>       #######
+#######Touch Actions From Juiceme "evtap app"#######
+#######      Idea From BackuMenu N900        #######
+#######           By RobbieThe1st            #######
+####################################################
+
+### Start
+
+
+T2S=/usr/bin/text2screen
+$T2S -s 1 -H center -y 460 -T 0xFFFF -t   ">>  Created By : Farhad Arghavan - Email : farhadarghavan@yahoo.com  <<"; y=$((y+15))	
+
+###
+
+y=0
+
+$T2S -c -B 0x0000	
+
+$T2S -s 2 -H center -y $y -T 0xFFFF -t  " --------------------------------------------------- "; y=$((y+15))
+$T2S -s 2 -H center -y $y -T 0xFF00 -t  "|>               Backup Menu N9 v 1.1              <|"; y=$((y+15))
+$T2S -s 2 -H center -y $y -T 0xFFFF -t  "|---------------------------------------------------|"; y=$((y+20))
+$T2S -s 2 -H center -y $y -T 0xFFFF -t  "|>>             > Start > Extra > Clean Home :      |";
+$T2S -s 2 -H left -y $y -T 0xF000 -t  "    Backup Menu"; y=$((y+18))
+$T2S -s 2 -H center -y $y -T 0xFFFF -t  "|---------------------------------------------------|"; y=$((y+40))
+
+$T2S -s 2 -H left -y $y -T 0xFFFF -t  "  Clean Home Partition ( /dev/mmcblk0p3 ) :"; y=$((y+20))
+$T2S -s 2 -H left -y $y -T 0xFFFF -t  "  You Lose All Your data In home !"; y=$((y+20))
+$T2S -s 2 -H left -y $y -T 0xFFFF -t  "  Messeages , Contacts , Web Bookmarks , ... "; y=$((y+20))
+$T2S -s 2 -H left -y $y -T 0xFFFF -t  "  And All Applications Data ! "; y=$((y+20))
+$T2S -s 2 -H left -y $y -T 0xFFFF -t  " "; y=$((y+30))
+$T2S -s 2 -H center -y $y -T 0xF000 -t  "  Are you sure do it ?! "; y=$((y+20))
+$T2S -s 2 -H left -y $y -T 0xFFFF -t  " "; y=$((y+20))
+$T2S -s 2 -H center -y $y -T 0xF000 -t  ">> Yes ( Y ) Or No ( N )"; y=$((y+30))
+$T2S -s 2 -H left -y 280 -T 0xF000 -t  " B ) Back To Main Menu"; y=$((y+20))
+
+$T2S -s 2 -H center -y 335 -T 0xFFFF -t " -------  -------                             -------";
+$T2S -s 2 -H center -y 350 -T 0xFFFF -t " |     |  |     |                             |     |";
+$T2S -s 2 -H center -y 365 -T 0xFFFF -t " |     |  |     |                             |     |";
+$T2S -s 2 -H center -y 380 -T 0xFFFF -t " |     |  |     |                             |     |";
+$T2S -s 2 -H center -y 395 -T 0xFFFF -t " |  Y  |  |  N  |                             |  B  |";
+$T2S -s 2 -H center -y 410 -T 0xFFFF -t " |     |  |     |                             |     |";
+$T2S -s 2 -H center -y 425 -T 0xFFFF -t " |     |  |     |                             |     |";
+$T2S -s 2 -H center -y 440 -T 0xFFFF -t " -------  -------                             -------";
+
+
+
+
+
+
+
+
+
+	t=49
+	tt=1
+	touch=`cat /proc/bus/input/devices | grep  -A 4 "mXT" | grep "Handlers" | cut -b 13-`
+	
+	while [ "$tt" -le $t ]
+	do
+		xx=$(/sbin/evtap -t /dev/input/$touch -m /opt/backupmenu/map/6button.map -n)
+		
+		## Yes
+		
+			if [ "$xx" == "1" ]; then
+		
+			
+			
+			
+			
+			
+					y=168
+					$T2S -c -B 0x0000 -x 0 -y 108 -w 854 -h 345		
+					$T2S -s 3 -x 20 -y 128 -T 0xF000 -t  "Clean Home ...";
+					
+					rm -rf /mnt/home/*
+					
+					$T2S -s 3 -x 20 -y 128 -T 0xF000 -t  "Clean Home ... Cleaned !"; y=$((y+40))
+					
+					$T2S -s 2 -H center -y 335 -T 0xFFFF -t "                                              -------";
+					$T2S -s 2 -H center -y 350 -T 0xFFFF -t "                                              |     |";
+					$T2S -s 2 -H center -y 365 -T 0xFFFF -t "                                              |     |";
+					$T2S -s 2 -H center -y 380 -T 0xFFFF -t "                                              |     |";
+					$T2S -s 2 -H center -y 395 -T 0xFFFF -t "    Q ) Back To Main Menu                     |  Q  |";
+					$T2S -s 2 -H center -y 410 -T 0xFFFF -t "                                              |     |";
+					$T2S -s 2 -H center -y 425 -T 0xFFFF -t "                                              |     |";
+					$T2S -s 2 -H center -y 440 -T 0xFFFF -t "                                              -------";
+					
+					
+						t=49
+						tt=1
+						touch=`cat /proc/bus/input/devices | grep  -A 4 "mXT" | grep "Handlers" | cut -b 13-`
+	
+						while [ "$tt" -le $t ]
+							do
+								xx=$(/sbin/evtap -t /dev/input/$touch -m /opt/backupmenu/map/6button.map -n)
+								
+								if [ "$xx" != "-1" ]
+								then
+								
+									if [ "$xx" == "6" ]
+									then
+									sh /opt/backupmenu/menu/m-e
+									sleep 1
+									fi
+								fi
+							done
+							
+			
+			fi
+		
+		## No
+		
+			if [ "$xx" == "2" ]; then
+		
+			sh /opt/backupmenu/menu/m-e
+			fi
+			
+
+			
+		## Quit
+		
+			if [ "$xx" == "6" ]; then
+		
+			sh /opt/backupmenu/4-Backupmenu-start
+			fi
+		##
+		
+		
+
+	
+	done
+	
+	
+
+	
+	
+	

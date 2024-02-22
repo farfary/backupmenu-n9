@@ -1,0 +1,6 @@
+[Desktop Entry]
+Type=Application
+Name=SSHD USB
+Categories=System;
+Exec=opensh -c "sh /opt/multiboot/bootit-sshd"
+Icon=/opt/multiboot/bootit-sshd.png

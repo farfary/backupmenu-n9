@@ -1,0 +1,4 @@
+#!/bin/sh
+rm -rf /sbin/bootit
+echo "bootit="boot"" > /sbin/bootit
+/sbin/reboot

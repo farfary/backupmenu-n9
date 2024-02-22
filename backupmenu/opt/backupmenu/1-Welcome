@@ -1,0 +1,31 @@
+####################################################
+#######            BackupMenu N9             #######
+#######         Created By Farfary           #######
+#######     <farhadarghavan@yahoo.com>       #######
+#######Touch Actions From Juiceme "evtap app"#######
+#######      Idea From BackuMenu N900        #######
+#######           By RobbieThe1st            #######
+####################################################
+
+
+T2S="/usr/bin/text2screen"
+y=0
+$T2S -s 1 -H center -y 460 -T 0xFFFF -t   ">>  Created By : Farhad Arghavan - Email : farhadarghavan@yahoo.com  <<";
+$T2S -c -B 0x0000	
+$T2S -s 2 -H center -y $y -T 0xFFFF -t   " --------------------------------------------------- "; y=$((y+15))
+$T2S -s 2 -H center -y $y -T 0xFF00 -t   "|>               Backup Menu N9 v 1.0              <|"; y=$((y+15))
+$T2S -s 2 -H center -y $y -T 0xFFFF -t   "|---------------------------------------------------|"; y=$((y+20))
+$T2S -s 2 -H center -y $y -T 0xFFFF -t   "|>>             > Welcome :                         |";
+$T2S -s 2 -H left -y $y -T 0xF000 -t     "    Backup Menu"; y=$((y+18))
+$T2S -s 2 -H center -y $y -T 0xFFFF -t   "|---------------------------------------------------|"; y=$((y+40))
+$T2S -s 3 -H center -y $y -T 0xFF00 -t   "Welcome To Backup Menu N9"; y=$((y+60))
+$T2S -s 2 -H center -y 174 -T 0xFFFF -t  "Created By:                            ";
+$T2S -s 3 -H center -y $y -T 0xF000 -t   "       Farhad Arghavan"; y=$((y+60))
+$T2S -s 2 -H center -y $y -T 0xFFFF -t   "Email : farhadarghavan@yahoo.com"; y=$((y+30))
+$T2S -s 2 -H center -y $y -T 0xFFFF -t   "Maemo.org ID : Farfary"; y=$((y+20))
+$T2S -s 2 -H center -y 460 -T 0xFFFF -t  "-----------------------------------------------------";
+
+sleep 8
+
+
+sh /opt/backupmenu/2-Prestart-Preparing

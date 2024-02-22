@@ -1,0 +1,103 @@
+####################################################
+#######            BackupMenu N9             #######
+#######         Created By Farfary           #######
+#######     <farhadarghavan@yahoo.com>       #######
+#######Touch Actions From Juiceme "evtap app"#######
+#######      Idea From BackuMenu N900        #######
+#######           By RobbieThe1st            #######
+####################################################
+
+### Start
+
+
+T2S=/usr/bin/text2screen
+$T2S -s 1 -H center -y 460 -T 0xFFFF -t   ">>  Created By : Farhad Arghavan - Email : farhadarghavan@yahoo.com  <<"; y=$((y+15))	
+
+###
+
+y=0
+
+$T2S -c -B 0x0000	
+
+$T2S -s 2 -H center -y $y -T 0xFFFF -t  " --------------------------------------------------- "; y=$((y+15))
+$T2S -s 2 -H center -y $y -T 0xFF00 -t  "|>               Backup Menu N9 v 1.1              <|"; y=$((y+15))
+$T2S -s 2 -H center -y $y -T 0xFFFF -t  "|---------------------------------------------------|"; y=$((y+20))
+$T2S -s 2 -H center -y $y -T 0xFFFF -t  "|>>             > Start > Extra :                   |";
+$T2S -s 2 -H left -y $y -T 0xF000 -t  "    Backup Menu"; y=$((y+18))
+$T2S -s 2 -H center -y $y -T 0xFFFF -t  "|---------------------------------------------------|"; y=$((y+40))
+
+$T2S -s 2 -H left -y $y -T 0xFFFF -t  "  >> C ) Clean Home Partition"; y=$((y+25))
+$T2S -s 2 -H left -y $y -T 0xFFFF -t  "  >> U ) Update Backupmenu & Multiboot"; y=$((y+25))
+#$T2S -s 2 -H left -y $y -T 0xFFFF -t  "  >> S ) Create Safe FS For MultiBoot And Backupmenu"; y=$((y+20))
+#$T2S -s 2 -H left -y $y -T 0xFF00 -t  "         ( See this menu For more details )"; y=$((y+30))
+
+
+$T2S -s 2 -H left -y $y -T 0xFFFF -t  " "; y=$((y+20))
+$T2S -s 2 -H left -y 280 -T 0xF000 -t  "   B ) Back To Main Menu"; y=$((y+20))
+
+$T2S -s 2 -H center -y 335 -T 0xFFFF -t " -------  -------                             -------";
+$T2S -s 2 -H center -y 350 -T 0xFFFF -t " |     |  |     |                             |     |";
+$T2S -s 2 -H center -y 365 -T 0xFFFF -t " |     |  |     |                             |     |";
+$T2S -s 2 -H center -y 380 -T 0xFFFF -t " |     |  |     |                             |     |";
+$T2S -s 2 -H center -y 395 -T 0xFFFF -t " |  C  |  |  U  |                             |  B  |";
+$T2S -s 2 -H center -y 410 -T 0xFFFF -t " |     |  |     |                             |     |";
+$T2S -s 2 -H center -y 425 -T 0xFFFF -t " |     |  |     |                             |     |";
+$T2S -s 2 -H center -y 440 -T 0xFFFF -t " -------  -------                             -------";
+
+
+
+
+
+
+
+
+
+	t=49
+	tt=1
+	touch=`cat /proc/bus/input/devices | grep  -A 4 "mXT" | grep "Handlers" | cut -b 13-`
+	
+	while [ "$tt" -le $t ]
+	do
+		xx=$(/sbin/evtap -t /dev/input/$touch -m /opt/backupmenu/map/6button.map -n)
+		
+		## Clean Home Partition
+		
+			if [ "$xx" == "1" ]; then
+		
+			sh /opt/backupmenu/menu/m-e-c
+			fi
+			
+		## Clean Home Partition
+		
+			if [ "$xx" == "2" ]; then
+		
+			sh /opt/backupmenu/menu/m-e-u
+			fi
+			
+		## Creat Safe FS
+		
+			#if [ "$xx" == "2" ]; then
+		
+			#sh /opt/backupmenu/menu/m-e-s
+			#fi
+			
+
+			
+		## Quit
+		
+			if [ "$xx" == "6" ]; then
+		
+			sh /opt/backupmenu/4-Backupmenu-start
+			fi
+		##
+		
+		
+
+	
+	done
+	
+	
+
+	
+	
+	

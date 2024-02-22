@@ -1,0 +1,4 @@
+#!/bin/sh
+rm -rf /sbin/bootit
+echo "bootit="backupmenu"" > /sbin/bootit
+/sbin/reboot

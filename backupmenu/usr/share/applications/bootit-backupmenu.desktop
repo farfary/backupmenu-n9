@@ -1,0 +1,6 @@
+[Desktop Entry]
+Type=Application
+Name=Backupmenu
+Categories=System;
+Exec=opensh -c "sh /opt/multiboot/bootit-backupmenu"
+Icon=/opt/multiboot/bootit-backupmenu.png

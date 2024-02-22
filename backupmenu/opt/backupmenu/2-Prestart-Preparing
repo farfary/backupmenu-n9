@@ -1,0 +1,203 @@
+####################################################
+#######            BackupMenu N9             #######
+#######         Created By Farfary           #######
+#######     <farhadarghavan@yahoo.com>       #######
+#######Touch Actions From Juiceme "evtap app"#######
+#######      Idea From BackuMenu N900        #######
+#######           By RobbieThe1st            #######
+####################################################
+
+### Start
+
+
+T2S=/usr/bin/text2screen
+$T2S -s 1 -H center -y 460 -T 0xFFFF -t   ">>  Created By : Farhad Arghavan - Email : farhadarghavan@yahoo.com  <<";	
+
+###
+	touch=`cat /proc/bus/input/devices | grep  -A 4 "mXT" | grep "Handlers" | cut -b 13-`
+###
+
+y=0
+
+$T2S -c -B 0x0000
+
+$T2S -s 2 -H center -y $y -T 0xFFFF -t  " --------------------------------------------------- "; y=$((y+15))
+$T2S -s 2 -H center -y $y -T 0xFF00 -t  "|>               Backup Menu N9 v 1.0              <|"; y=$((y+15))
+$T2S -s 2 -H center -y $y -T 0xFFFF -t  "|---------------------------------------------------|"; y=$((y+20))
+$T2S -s 2 -H center -y $y -T 0xFFFF -t  "|>>             > Welcome : Start Backup Menu ?     |";
+$T2S -s 2 -H left -y $y -T 0xF000 -t  "    Backup Menu"; y=$((y+18))
+$T2S -s 2 -H center -y $y -T 0xFFFF -t  "|---------------------------------------------------|"; y=$((y+40))
+
+$T2S -s 2 -H left -y $y -T 0xFFFF -t  " If You Want Start The Backup Menu Select 1. 2.. 3..."; y=$((y+50))
+$T2S -s 2 -H left -y $y -T 0xF000 -t  " Or Select Q to Reboot ! ";
+
+
+$T2S -s 2 -H center -y 335 -T 0xFFFF -t " -------  -------  -------                    -------";
+$T2S -s 2 -H center -y 350 -T 0xFFFF -t " |     |  |     |  |     |                    |     |";
+$T2S -s 2 -H center -y 365 -T 0xFFFF -t " |     |  |     |  |     |                    |     |";
+$T2S -s 2 -H center -y 380 -T 0xFFFF -t " |     |  |     |  |     |                    |     |";
+$T2S -s 2 -H center -y 395 -T 0xFFFF -t " |  1  |  |  2  |  |  3  |                    |  Q  |";
+$T2S -s 2 -H center -y 410 -T 0xFFFF -t " |     |  |     |  |     |                    |     |";
+$T2S -s 2 -H center -y 425 -T 0xFFFF -t " |     |  |     |  |     |                    |     |";
+$T2S -s 2 -H center -y 440 -T 0xFFFF -t " -------  -------  -------                    -------";
+
+	t=49
+	tt=1
+	touch=`cat /proc/bus/input/devices | grep  -A 4 "mXT" | grep "Handlers" | cut -b 13-`
+	
+	while [ "$tt" -le $t ]
+	do
+		xx=$(/sbin/evtap -t /dev/input/$touch -m /opt/backupmenu/map/6button.map -n)
+		
+		if [ "$xx" != "6" ]; then
+		
+			if [ "$xx" == "1" ]; then
+				
+				xx=$(/sbin/evtap -t /dev/input/$touch -m /opt/backupmenu/map/6button.map -n)
+				
+				if [ "$xx" == "2" ]; then
+				
+					xx=$(/sbin/evtap -t /dev/input/$touch -m /opt/backupmenu/map/6button.map -n)
+					
+						if [ "$xx" == "3" ]; then
+					
+							sh /opt/backupmenu/3-Backupmenu-preparing
+						else
+						
+							y=0
+
+							$T2S -c -B 0x0000
+							
+							
+							$T2S -s 2 -H center -y $y -T 0xFFFF -t  " --------------------------------------------------- "; y=$((y+15))
+							$T2S -s 2 -H center -y $y -T 0xFF00 -t  "|>               Backup Menu N9 v 1.0              <|"; y=$((y+15))
+							$T2S -s 2 -H center -y $y -T 0xFFFF -t  "|---------------------------------------------------|"; y=$((y+20))
+							$T2S -s 2 -H center -y $y -T 0xFFFF -t  "|>>             > Welcome : Start Backup Menu ?     |";
+							$T2S -s 2 -H left -y $y -T 0xF000 -t  "    Backup Menu"; y=$((y+18))
+							$T2S -s 2 -H center -y $y -T 0xFFFF -t  "|---------------------------------------------------|"; y=$((y+40))
+							
+							$T2S -s 2 -H left -y $y -T 0xF000 -t  " Wrong Selected ! Again ... ";
+							sleep 1
+							sh /opt/backupmenu/2-Prestart-Preparing
+							
+						fi
+						
+				else
+						
+					y=0
+
+					$T2S -c -B 0x0000
+							
+							
+							$T2S -s 2 -H center -y $y -T 0xFFFF -t  " --------------------------------------------------- "; y=$((y+15))
+							$T2S -s 2 -H center -y $y -T 0xFF00 -t  "|>               Backup Menu N9 v 1.0              <|"; y=$((y+15))
+							$T2S -s 2 -H center -y $y -T 0xFFFF -t  "|---------------------------------------------------|"; y=$((y+20))
+							$T2S -s 2 -H center -y $y -T 0xFFFF -t  "|>>             > Welcome : Start Backup Menu ?     |";
+							$T2S -s 2 -H left -y $y -T 0xF000 -t  "    Backup Menu"; y=$((y+18))
+							$T2S -s 2 -H center -y $y -T 0xFFFF -t  "|---------------------------------------------------|"; y=$((y+40))
+							
+							$T2S -s 2 -H left -y $y -T 0xF000 -t  " Wrong Selected ! Again ... ";
+					sleep 1
+					sh /opt/backupmenu/2-Prestart-Preparing
+							
+				fi
+				
+			else
+						
+				y=0
+
+				$T2S -c -B 0x0000
+							
+							
+							$T2S -s 2 -H center -y $y -T 0xFFFF -t  " --------------------------------------------------- "; y=$((y+15))
+							$T2S -s 2 -H center -y $y -T 0xFF00 -t  "|>               Backup Menu N9 v 1.0              <|"; y=$((y+15))
+							$T2S -s 2 -H center -y $y -T 0xFFFF -t  "|---------------------------------------------------|"; y=$((y+20))
+							$T2S -s 2 -H center -y $y -T 0xFFFF -t  "|>>             > Welcome : Start Backup Menu ?     |";
+							$T2S -s 2 -H left -y $y -T 0xF000 -t  "    Backup Menu"; y=$((y+18))
+							$T2S -s 2 -H center -y $y -T 0xFFFF -t  "|---------------------------------------------------|"; y=$((y+40))
+							
+							$T2S -s 2 -H left -y $y -T 0xF000 -t  " Wrong Selected ! Again ... ";
+				sleep 1
+				sh /opt/backupmenu/2-Prestart-Preparing
+							
+			fi
+		
+		else
+		
+				y=0
+
+				$T2S -c -B 0x0000	
+
+				$T2S -s 2 -H center -y $y -T 0xFFFF -t  " --------------------------------------------------- "; y=$((y+15))
+				$T2S -s 2 -H center -y $y -T 0xFF00 -t  "|>              Backup Menu N9 v 1.0               <|"; y=$((y+15))
+				$T2S -s 2 -H center -y $y -T 0xFFFF -t  "|---------------------------------------------------|"; y=$((y+20))
+				$T2S -s 2 -H center -y $y -T 0xF000 -t  "|>                  !   Reboot  !                  <|"; y=$((y+20))
+				$T2S -s 2 -H center -y $y -T 0xFFFF -t  "|---------------------------------------------------|"; y=$((y+60))
+
+
+				$T2S -s 3	-H center -y $y -T 0xF000 -t  " Are You Sure To Reboot ?"; y=$((y+25))
+	
+
+				$T2S -s 2 -H center -y 335 -T 0xFFFF -t " -------                                      -------";
+				$T2S -s 2 -H center -y 350 -T 0xFFFF -t " |     |                                      |     |";
+				$T2S -s 2 -H center -y 365 -T 0xFFFF -t " |     |                                      |     |";
+				$T2S -s 2 -H center -y 380 -T 0xFFFF -t " |     |                                      |     |";
+				$T2S -s 2 -H center -y 395 -T 0xFFFF -t " |  Y  |                                      |  N  |";
+				$T2S -s 2 -H center -y 410 -T 0xFFFF -t " |     |                                      |     |";
+				$T2S -s 2 -H center -y 425 -T 0xFFFF -t " |     |                                      |     |";
+				$T2S -s 2 -H center -y 440 -T 0xFFFF -t " -------                                      -------";
+				
+				
+				
+				
+				
+				t=49
+				tt=1
+				touch=`cat /proc/bus/input/devices | grep  -A 4 "mXT" | grep "Handlers" | cut -b 13-`
+	
+				while [ "$tt" -le $t ]
+				do
+		
+				select=$(/sbin/evtap -t /dev/input/$touch -m /opt/backupmenu/map/6button.map -n)
+
+				if [ "$select" != "-1" ]; then
+		
+					if [ "$select" != "1" ]; then
+		
+						if [ "$select" == "6" ]; then
+			
+							sh /opt/backupmenu/2-Prestart-Preparing
+						fi
+					else
+		
+						sync
+
+						rm /opt/backupmenu/datef
+						rm /opt/backupmenu/listbackup.txt
+						sleep 2
+
+						echo 1 > /proc/sys/kernel/sysrq
+						echo b > /proc/sysrq-trigger
+					fi
+				fi
+
+				done	
+				
+		
+		fi
+			
+	
+	done
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	

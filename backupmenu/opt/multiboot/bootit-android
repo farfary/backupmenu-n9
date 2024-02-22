@@ -1,0 +1,4 @@
+#!/bin/sh
+rm -rf /sbin/bootit
+echo "bootit="droidboot"" > /sbin/bootit
+/sbin/reboot

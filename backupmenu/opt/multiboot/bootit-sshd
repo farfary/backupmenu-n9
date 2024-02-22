@@ -1,0 +1,4 @@
+#!/bin/sh
+rm -rf /sbin/bootit
+echo "bootit="sshd_start"" > /sbin/bootit
+/sbin/reboot

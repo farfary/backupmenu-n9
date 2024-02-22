@@ -1,0 +1,51 @@
+####################################################
+#######            BackupMenu N9             #######
+#######         Created By Farfary           #######
+#######     <farhadarghavan@yahoo.com>       #######
+#######Touch Actions From Juiceme "evtap app"#######
+#######      Idea From BackuMenu N900        #######
+#######           By RobbieThe1st            #######
+####################################################
+
+#### Creat Needed Dir
+
+mkdir -p /tmp/bmdisk/bin
+mkdir -p /tmp/bmdisk/usr
+mkdir -p /tmp/bmdisk/usr/lib
+mkdir -p /tmp/bmdisk/usr/bin
+mkdir -p /tmp/bmdisk/usr/sbin
+mkdir -p /tmp/bmdisk/sbin
+mkdir -p /tmp/bmdisk/lib
+mkdir -p /tmp/bmdisk/lib/modules
+mkdir -p /tmp/bmdisk/etc
+mkdir -p /tmp/bmdisk/etc/ssh
+mkdir -p /tmp/bmdisk/tmp
+mkdir -p /tmp/bmdisk/tmp/mnt
+mkdir -p /tmp/bmdisk/usr/share
+mkdir -p /tmp/bmdisk/root
+mkdir -p /tmp/bmdisk/dev
+mkdir -p /tmp/bmdisk/sys
+mkdir -p /tmp/bmdisk/proc
+
+mkdir -p /tmp/bmdisk/mnt/rootfs
+mkdir -p /tmp/bmdisk/mnt/mydoc
+mkdir -p /tmp/bmdisk/mnt/home
+####
+
+cp -rf /bin /tmp/bmdisk/
+cp -rf /usr/sbin /tmp/bmdisk/usr/
+cp -rf /sbin /tmp/bmdisk/
+cp -rf /lib /tmp/bmdisk/
+cp -rf /etc /tmp/bmdisk/
+cp /usr/bin/text2screen /tmp/bmdisk/usr/bin/
+cp /usr/bin/cksum /tmp/bmdisk/usr/bin/
+cp /usr/bin/cut /tmp/bmdisk/usr/bin/
+cp /usr/bin/passwd /tmp/bmdisk/usr/bin/
+
+#### Backupmenu Dir Creat
+
+mount /dev/mmcblk0p1 /mnt/mydoc || mount -t ntfs-3g /dev/mmcblk0p1 /mnt/mydoc
+if [ ! -d /mnt/mydoc/Backupmenu ]
+then
+mkdir /mnt/mydoc/Backupmenu
+fi
